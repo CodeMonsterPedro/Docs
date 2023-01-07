@@ -1,104 +1,86 @@
-
-
 @startuml
 
+class MainMenu{
+ForecastModel fnet
+SummaryModel snet
+Tester tester
 
-class DataManager{
-List<Row> data
-List<List<string>> showList
-string viewRule = ""
- 
-_Show()
-DB CreateDB()
-FilterBy(viewRule)
-SortBy(string viewRule, bool reverse)
-signalSearch(string query)
-signalUpdate()
+test(net_id)
+update_forecast()
+update_meteodata()
+get_top_labels(model)
 }
 
-class DataReader{
-string query
+class Tester{
+NNObj obj
 
-Search(string query)
-Get()
-GetNext(int num)
-}
-
-
-class DataWriter{
-List<Row> newData
-date lastUpdateDate
-
-UpdateSignal()
-SetDB()
-_SaveLog(lastupdateDate)
-_Write()
-}
-
-class DataMiner{
-List minedData
-
-List<Row> Update(date limit)
-List<Row> Join()
+void test(net_id)
+void hyperparameters_importance_test(net_id)
+void update_data(test_result)
 }
 
 class Parser{
-_ParseSource1(date limit)
-_ParseSource2(date limit)
-_ParseSource3(date limit)
+List<string> parse(date limit)
+void saveMeteodata()
 }
 
+class NNBase{
+NNBase NNBase()
+void ~NNBase()
+void load_net()
+void load_data_set()
+void save_net()
+NNObj build_rnn_net()
+NNObj build_perc_net()
+}
 
+class ForecastModel{
+List<Dict> predict(List<Dict> data)
+List<Dict> encode(List<Dict> data)
+List<Dict> decode(List<Dict> data)
+string test(net_id)
+}
 
-class Row{
-Dict data
-List<string> dataNamess
-List<string> Get(string viewRule)
-Set()
+class SummaryModel{
+List<Dict> predict(List<Dict> data)
+List<Dict> encode(List<Dict> data)
+List<Dict> decode(List<Dict> data)
+string test(net_id)
 }
 
 class DB{
-Search(string query)
-Remove(string query)
-Add(string query)
+
 }
 
-DataManager -up-* DataReader
-DataManager -down-* DataWriter
-DB *-up- DataReader
-DB *-down- DataWriter
-DataWriter -left-> DataMiner
-DataWriter --* ForecastDeamon
-DataMiner -left-> Parser
+class Views{
 
+}
 
-note right of Row
- Meteodata container, keeps data, datanames and data limits
- 
- check data vialidity and fix it when make Set() function
+note right of DB
+data base api from django framework
 end note
 
-note left of DataManager
- 
- "viewRule" is a string or a list of string that provide a names and 
- order of data which need to show
-
+note right of Views
+views api from django framework
 end note
 
-note bottom of DataWriter
+MainMenu --> Tester
+MainMenu --> Parser
+MainMenu --> ForecastModel
+MainMenu --> SummaryModel
 
- Get new data from parsed sourced then wrrite them to data base
+ForecastModel .down.> NNBase
+SummaryModel  .down.> NNBase
 
-end note
+DB .up.> Parser
+DB .up.> NNBase
+DB .up.> Tester
 
-note bottom of DataReader
-
- querry should be like dataName=value
-
-end note
+Views --> MainMenu
 
 
 @enduml
+
 
 
 
